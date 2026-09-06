@@ -3,22 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Dashboard Clients</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 30px; background: #f4f6f8; }
-    h1 { color: #333; }
-    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .search-box input { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; width: 250px; font-size: 14px; }
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-    th { background: #007bff; color: white; cursor: pointer; user-select: none; }
-    th:hover { background: #0056b3; }
-    th::after { content: ' ↕'; font-size: 11px; opacity: 0.6; }
-    .pagination { margin-top: 20px; display: flex; justify-content: center; gap: 5px; }
-    .pagination a, .pagination span { padding: 8px 12px; border: 1px solid #ddd; background: white; text-decoration: none; color: #007bff; border-radius: 4px; }
-    .pagination .active { background: #007bff; color: white; border-color: #007bff; }
-    a { color: #007bff; text-decoration: none; font-weight: bold; }
-    a:hover { text-decoration: underline; }
-  </style>
+  <!-- Lien vers le fichier CSS (dans public/css/style.css) -->
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
@@ -46,6 +32,11 @@
     </div>
   </div>
 
+  <!-- Bouton d'ajout -->
+  <div style="margin-bottom: 15px;">
+    <a href="/customer/add" class="btn-add">➕ Nouveau Client</a>
+  </div>
+
   <!-- Tableau de données -->
   <table id="customersTable">
     <thead>
@@ -54,7 +45,7 @@
         <th onclick="sortTable(1)">Nom d'utilisateur</th>
         <th onclick="sortTable(2)">Email</th>
         <th onclick="sortTable(3)">Comptes</th>
-        <th style="cursor: default;" onclick="event.stopPropagation()">Action</th>
+        <th style="cursor: default;" onclick="event.stopPropagation()">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -65,7 +56,14 @@
             <td><%= c.username %></td>
             <td><%= c.email || 'N/A' %></td>
             <td><%= c.accountNumbers ? c.accountNumbers.length : 0 %> compte(s)</td>
-            <td><a href="/customer/<%= c.username %>">Voir profil</a></td>
+            <td>
+              <a href="/customer/<%= c.username %>" style="margin-right: 8px;">Profil</a>
+              <a href="/customer/edit/<%= c._id %>" style="color: #ffc107; font-weight: bold; margin-right: 8px;">✏️ Modifier</a>
+
+              <form action="/customer/delete/<%= c._id %>" method="POST" style="display:inline;" onsubmit="return confirm('Confirmer la suppression ?');">
+                <button type="submit" class="btn-danger">🗑️ Supprimer</button>
+              </form>
+            </td>
           </tr>
         <% }) %>
       <% } else { %>
@@ -99,7 +97,7 @@
     </div>
   <% } %>
 
-  <!-- Script pour rechargement de la limite, filtrage et tri -->
+  <!-- Scripts JS Client -->
   <script>
     function changeLimit(newLimit) {
       window.location.href = `/?page=1&limit=${newLimit}`;

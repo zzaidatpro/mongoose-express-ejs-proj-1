@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title><%= customer ? 'Modifier le Client' : 'Nouveau Client' %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <div class="form-card">
+    <h2><%= customer ? '✏️ Modifier Client' : '➕ Nouveau Client' %></h2>
+
+    <form action="<%= customer ? '/customer/edit/' + customer._id : '/customer/add' %>" method="POST">
+      
+      <div class="form-group">
+        <label>Nom :</label>
+        <input type="text" name="name" value="<%= customer ? customer.name : '' %>" required>
+      </div>
+
+      <div class="form-group">
+        <label>Nom d'utilisateur :</label>
+        <input type="text" name="username" value="<%= customer ? customer.username : '' %>" required>
+      </div>
+
+      <div class="form-group">
+        <label>Email :</label>
+        <input type="email" name="email" value="<%= customer ? customer.email : '' %>">
+      </div>
+
+      <div class="form-group">
+        <label>Adresse :</label>
+        <input type="text" name="address" value="<%= customer ? customer.address : '' %>">
+      </div>
+
+      <div class="form-group">
+        <label>Âge :</label>
+        <input type="number" name="age" value="<%= customer ? customer.age : '' %>">
+      </div>
+
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="active" name="active" <%= (customer && customer.active) || !customer ? 'checked' : '' %>>
+        <label for="active" style="margin:0;">Compte Actif</label>
+      </div>
+
+      <button type="submit" class="btn-submit">💾 Enregistrer</button>
+      <a href="/" class="btn-cancel">Annuler</a>
+    </form>
+  </div>
+
+</body>
+</html>
