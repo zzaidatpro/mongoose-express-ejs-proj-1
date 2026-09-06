@@ -4,10 +4,17 @@ const customerSchema = new mongoose.Schema({
   username: { type: String, required: true },
   name: { type: String, required: true },
   address: String,
+  
+  // Accepte une vraie Date JS ou la structure {$date: {$numberLong: "..."}}
   birthdate: mongoose.Schema.Types.Mixed,
+  
   email: String,
   active: Boolean,
+  
+  // Contient le tableau d'objets [{"$numberInt": "371138"}, ...]
   accounts: [mongoose.Schema.Types.Mixed],
+  
+  // Structure dynamique (clés d'objets UUID générées à la volée)
   tier_and_details: {
     type: Map,
     of: new mongoose.Schema({

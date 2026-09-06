@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Détails du Compte</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f4f6f8; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    th, td { padding: 10px; border: 1px solid #ddd; }
+    th { background: #28a745; color: white; }
+    .buy { color: green; font-weight: bold; }
+    .sell { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <p><a href="javascript:history.back()">&larr; Retour au client</a></p>
+
+  <h1>💳 Transactions pour le compte n°<%= accountId %></h1>
+
+  <% if (account) { %>
+    <p><strong>Plafond autorisé :</strong> $<%= account.limitNumber %></p>
+  <% } %>
+
+  <% if (transactionDoc && transactionDoc.transactions.length > 0) { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Symbole</th>
+          <th>Quantité</th>
+          <th>Prix Unitaire</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% transactionDoc.transactions.forEach(t => { %>
+          <tr>
+            <td class="<%= t.transaction_code %>"><%= t.transaction_code.toUpperCase() %></td>
+            <td><%= t.symbol.toUpperCase() %></td>
+            <td><%= t.amount %></td>
+            <td>$<%= Number(t.price).toFixed(2) %></td>
+            <td>$<%= Number(t.total).toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p>Aucune transaction enregistrée pour ce compte.</p>
+  <% } %>
+</body>
+</html>

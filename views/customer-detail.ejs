@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Profil Client</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f4f6f8; }
+    .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    a { color: #007bff; }
+  </style>
+</head>
+<body>
+  <p><a href="/">&larr; Retour à la liste</a></p>
+  
+  <div class="card">
+    <h1>👤 <%= customer.name %></h1>
+    <p><strong>Email :</strong> <%= customer.email %></p>
+    <p><strong>Adresse :</strong> <%= customer.address %></p>
+    <p><strong>Statut :</strong> <%= customer.active ? 'Actif ✅' : 'Inactif ❌' %></p>
+  </div>
+
+  <h2>💳 Comptes associés</h2>
+  <% if (accounts.length > 0) { %>
+    <ul>
+      <% accounts.forEach(acc => { %>
+        <li>
+          <strong>Compte ID :</strong> <%= acc.accountIdNumber %> | 
+          <strong>Limite :</strong> $<%= acc.limitNumber %> | 
+          <strong>Produits :</strong> <%= acc.products.join(', ') %> — 
+          <a href="/account/<%= acc.accountIdNumber %>">Voir les transactions</a>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p>Aucun détail de compte trouvé dans la collection 'accounts'.</p>
+  <% } %>
+</body>
+</html>

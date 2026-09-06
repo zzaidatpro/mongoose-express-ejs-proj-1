@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Clients</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f4f6f8; }
+    h1 { color: #333; }
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .search-box input { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; width: 250px; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background: #007bff; color: white; cursor: pointer; user-select: none; }
+    th:hover { background: #0056b3; }
+    th::after { content: ' ↕'; font-size: 11px; opacity: 0.6; }
+    .pagination { margin-top: 20px; display: flex; justify-content: center; gap: 5px; }
+    .pagination a, .pagination span { padding: 8px 12px; border: 1px solid #ddd; background: white; text-decoration: none; color: #007bff; border-radius: 4px; }
+    .pagination .active { background: #007bff; color: white; border-color: #007bff; }
+    a { color: #007bff; text-decoration: none; font-weight: bold; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <h1>📋 Liste des Clients (<%= typeof totalCustomers !== 'undefined' ? totalCustomers : customers.length %>)</h1>
+
+  <!-- Barre de contrôle : Recherche & Choix du nombre d'affichage -->
+  <div class="controls">
+    <div class="search-box">
+      <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 Rechercher sur cette page...">
+    </div>
+
+    <div>
+      <label for="limitSelect"><strong>Afficher par :</strong></label>
+      <% const currentLimit = typeof limit !== 'undefined' ? limit : 50; %>
+      <select id="limitSelect" onchange="changeLimit(this.value)">
+        <option value="10" <%= currentLimit === 10 ? 'selected' : '' %>>10</option>
+        <option value="25" <%= currentLimit === 25 ? 'selected' : '' %>>25</option>
+        <option value="50" <%= currentLimit === 50 ? 'selected' : '' %>>50</option>
+        <option value="100" <%= currentLimit === 100 ? 'selected' : '' %>>100</option>
+      </select>
+    </div>
+
+    <div>
+      Page <strong><%= typeof currentPage !== 'undefined' ? currentPage : 1 %></strong> sur <strong><%= typeof totalPages !== 'undefined' ? totalPages : 1 %></strong>
+    </div>
+  </div>
+
+  <!-- Tableau de données -->
+  <table id="customersTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">Nom</th>
+        <th onclick="sortTable(1)">Nom d'utilisateur</th>
+        <th onclick="sortTable(2)">Email</th>
+        <th onclick="sortTable(3)">Comptes</th>
+        <th style="cursor: default;" onclick="event.stopPropagation()">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (customers && customers.length > 0) { %>
+        <% customers.forEach(c => { %>
+          <tr>
+            <td><%= c.name %></td>
+            <td><%= c.username %></td>
+            <td><%= c.email || 'N/A' %></td>
+            <td><%= c.accountNumbers ? c.accountNumbers.length : 0 %> compte(s)</td>
+            <td><a href="/customer/<%= c.username %>">Voir profil</a></td>
+          </tr>
+        <% }) %>
+      <% } else { %>
+        <tr>
+          <td colspan="5" style="text-align: center;">Aucun client trouvé.</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+
+  <!-- Navigation par pagination -->
+  <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+    <div class="pagination">
+      <% if (currentPage > 1) { %>
+        <a href="/?page=<%= currentPage - 1 %>&limit=<%= currentLimit %>">&laquo; Précédent</a>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <% if (i === currentPage) { %>
+          <span class="active"><%= i %></span>
+        <% } else if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
+          <a href="/?page=<%= i %>&limit=<%= currentLimit %>"><%= i %></a>
+        <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
+          <span>...</span>
+        <% } %>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+        <a href="/?page=<%= currentPage + 1 %>&limit=<%= currentLimit %>">Suivant &raquo;</a>
+      <% } %>
+    </div>
+  <% } %>
+
+  <!-- Script pour rechargement de la limite, filtrage et tri -->
+  <script>
+    function changeLimit(newLimit) {
+      window.location.href = `/?page=1&limit=${newLimit}`;
+    }
+
+    function filterTable() {
+      const filter = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#customersTable tbody tr");
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    }
+
+    let sortDirections = {};
+    function sortTable(colIndex) {
+      const tbody = document.querySelector("#customersTable tbody");
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+
+      sortDirections[colIndex] = !sortDirections[colIndex];
+      const isAsc = sortDirections[colIndex];
+
+      rows.sort((rowA, rowB) => {
+        const cellA = rowA.children[colIndex].innerText.trim();
+        const cellB = rowB.children[colIndex].innerText.trim();
+
+        const numA = parseInt(cellA);
+        const numB = parseInt(cellB);
+
+        if (!isNaN(numA) && !isNaN(numB)) {
+          return isAsc ? numA - numB : numB - numA;
+        }
+
+        return isAsc ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+    }
+  </script>
+
+</body>
+</html>
